@@ -1,4 +1,5 @@
 '''
+Link: https://github.com/StellaHerzberg/Project2-RPG.git 
 Name: Stella Herzberg
 Date: 04/18/2024
 Class: CPSC 1050
@@ -49,7 +50,7 @@ def use_potion(player):
     # Gets current health from the player and increases it by 50
     current_health = player.get_health()
     new_health = current_health + 50
-    
+
     print(f'\nYou take the potion. Your health increases by 50 and now stands at {health}')
 
     # Sets the player's health as the updated health
