@@ -7,13 +7,13 @@ Section: 001
 Assignment: Project 2 RPG
 
 Description: This creates a RPG "Caveman" where the user interacts as a character within a cave. The user will attempt
-to move through various rooms, each one containing either a treasure chest with supplies (a sword, potion, or a resolver) or a monster that they
+to move through various rooms, each one containing either a treasure chest with supplies (a sword, potion) or a monster that they
 must fight. The user wins if they successfully navigate through all of the 10 rooms without dying.
 '''
 
 # Imports various files to be used in the game
 from questions import Questions
-from tools import (Item, use_sword, use_potion, use_resolver)
+from tools import (Item, use_potion)
 from adventuremap import AdventureMap
 from adventuremap import Room
 import random
@@ -35,21 +35,21 @@ class InvalidInputError(Exception):
 class Character:
     '''Sets up a parent class for the characters in the game.'''
 
-    def __init__(self, name, health = 200):
+    def __init__(self, name):
         '''Initalizes the name and health attributes for the Character class.'''
         self.name = name
-        self.health = health
+        self.health = 200
 
 
 class Player(Character):
     '''Creates a class for the user's playing character.'''
 
-    def __init__(self, name, health = 200):
+    def __init__(self, name):
         '''Initialies the name and health variables for the Player.'''
-        super().__init__(name, health)
+        super().__init__(name)
 
     def get_health(self):
-        return int(self.health)
+        return self.health
 
     def set_health(self, health):
         self.health = health
@@ -60,8 +60,15 @@ class Player(Character):
 
     def health_decrease(self):
         '''Decreases the Player health by a random amount.'''
+        
+        # Gets a random number and decreases the health by that amount
         decrease = random.randint(50,100)
         self.health -= decrease
+
+        # Keeps health from going below 0
+        if self.health < 0:
+            self.health = 0
+
         return self.health
 
 
@@ -108,7 +115,6 @@ def monster_room(question_list, player):
         return False
         
 
-
 def replay():
     '''When called, game will replay and main function runs again.'''
     main()
@@ -117,11 +123,10 @@ def replay():
 
 def main():
 
-    # Creates items for tools the user can receive (sword, potion, and resolver) - includes the name, description, and its use
+    # Creates items for tools the user can receive (sword, potion) - includes the name, description, and its use
     sword = Item("sword", "A shining blade, honed for battle, swift and lethal in skilled hands.", "This tool effectively kills the beast with no health depletion to the user.")
     potion = Item("potion", "Vial of shimmering liquid, glowing with vitality, promising swift restoration to the wounded and weary.", "Adds 50 health to user.")
-    resolver = Item("resolver", "A beautiful stained glass offers the chance to correct mistakes and provide clarity.", "Grants the user an extra guess on a question with no health depletion.")
-
+  
     # Creates an adventure_map object and adds the monster room and treasure room to the map - includes the name and description
     adventure_map = AdventureMap()
     adventure_map.add_room(Room("The Beast's Lair", "Entering the room, a primal fear grips you as the air grows thick with tension. the faint glow of touchlight barely illuminates the massive silhouette lurking in the shadows - the unmistakable presence of a formidable beast."))
@@ -152,7 +157,7 @@ def main():
     player = Player(user_name)
 
     # Initiates tool_list, question_list, a count for the rooms, the player's tool list, and a user_tool_choice variable
-    tool_list = [sword, potion, resolver]
+    tool_list = [sword, potion]
     question_list = [question1, question2, question3, question4, question5, question6, question7, question8, question9, question10]
     count = 0
     player_tool_list = []
@@ -161,7 +166,7 @@ def main():
 
 ### GAME LOOP
     # Loop continues while the player's health is above 0
-    while player.get_health() > 0 and count <= 10:
+    while player.get_health() > 0 and count < 10:
 
         try:
         
@@ -173,12 +178,12 @@ def main():
             while user_choice not in ["1", "2"]:
                 raise InvalidInputError()
 
-            # Gets a random integer from 0 to 1
-            random_num = random.randint(0,4)
+            # Gets a random integer from 0 to 2
+            random_num = random.randint(0,2)
 
 
-            # MONSTER ROOM: executes if the random_num is 0 through 3
-            if random_num in [0, 1, 2, 3]:
+            # MONSTER ROOM: executes if the random_num is 0 through 1
+            if random_num in [0, 1]:
 
                 # Sets the room as the treasure room and prints the introductive room lines
                 room = adventure_map.get_room("The Beast's Lair")
@@ -203,6 +208,11 @@ def main():
                     print(f'\nYou have tools avaliable. Do you want to use a tool? Y or N')
                     user_tool_choice = input().lower().strip()
                     
+                    # Validates user input
+                    while user_tool_choice not in ["y", "n"]:
+                        print(f'Please input either Y or N.')
+                        user_tool_choice = input().lower().strip()
+
                     # If the user wants to use a tool
                     if user_tool_choice == "y":
 
@@ -237,23 +247,6 @@ def main():
                                 if tool.get_name().lower() == "sword":
                                     player_tool_list.remove(tool)
                                     break
-                
-                        # Executes if the user chooses to use the resolver
-                        elif user_tool_choice == "resolver":
-                                
-                            # Generates a random question from the question list
-                            random_question = random.choice(question_list)
-                            
-                            # Executes the function with the resolver's use
-                            use_resolver(random_question)
-
-                            # Iterates count variable
-                            count += 1
-                            
-                            # Removes the resolver from the player's tool list by iterating through the list, getting the name of the object, and removing it
-                            for tool in player_tool_list:
-                                if tool.get_name().lower() == "resolver":
-                                    player_tool_list.remove(tool)
 
 
                     # If the user does not want to use a tool, loop is broken and count is iterated by 1
@@ -264,8 +257,8 @@ def main():
                             break
 
 
-            # If the random number is 4, user enters the treasure room
-            elif random_num == 4:
+            # If the random number is 2, user enters the treasure room
+            elif random_num == 2:
                 
                 # Sets room as the lair and prints it
                 room = adventure_map.get_room("Treasure Trove")
@@ -284,7 +277,9 @@ def main():
                     # Iterates through the player's tool list, gets the name of the potion, executes the use_potion functionm then removes it
                     for tool in player_tool_list:
                         if tool.get_name().lower() == "potion":
-                            player.set_health = use_potion(player.get_health())
+
+                            # Sets the players health as the updated health
+                            player.set_health(use_potion(player))
                             player_tool_list.remove(tool)
 
                 # Prompts user to acknowledge the tool
@@ -302,7 +297,7 @@ def main():
 
 ### END GAME
     # If the player's health is less than 0 or if player has been through 10 rooms
-    if count < 10 and player.get_health() <= 0:
+    if player.get_health() == 0:
 
         # This prints and a user input is taken
         print(f'GAME OVER. You died before you could escape the cave. Better luck next time.')
@@ -316,10 +311,10 @@ def main():
             user_choice = input().strip().upper()
 
     # If the count is 10 and player's health is above 0
-    elif count == 10 and player.get_health() > 0:
+    elif count == 10:
 
         # This is printed, asks user if they want to play again, then takes response as input
-        print(f'Congratulations, {user_name}! You successfully escaped the cave! Would you like to play again? Y or N')
+        print(f'Congratulations, {user_name}! You completed 10 rooms and successfully escaped the cave! Would you like to play again? Y or N')
         user_choice = input().strip().upper()
         final = "won"
 
