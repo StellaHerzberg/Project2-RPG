@@ -199,6 +199,7 @@ def main():
                     if monster_room(question_list,player): 
                         print(f"Oh no - that answer was incorrect! The beast lashes out and injures you. Your health now stands at {player.health_decrease()}.")
                         count += 1
+                    
                     else:
                         count += 1
                         
@@ -254,7 +255,6 @@ def main():
                         if monster_room(question_list,player): 
                             print(f"Oh no - that answer was incorrect! The beast lashes out and injures you. Your health now stands at {player.health_decrease()}.")
                             count += 1
-                            break
 
 
             # If the random number is 2, user enters the treasure room
