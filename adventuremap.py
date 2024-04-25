@@ -21,6 +21,9 @@ class AdventureMap:
 
     def add_room(self, room):
         self.map_dict[room.get_name().lower()] = room
+
+    def get_room(self, room):
+        return self.map_dict.get(room.lower())
     
 
 class Room:
